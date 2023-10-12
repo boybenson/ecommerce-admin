@@ -8,15 +8,19 @@ import {
 export const AdminUrls = [
   {
     label: "Dashboard",
+    path: "/",
   },
   {
     label: "Products",
+    path: "/products",
   },
   {
     label: "Orders",
+    path: "/orders",
   },
   {
     label: "Broadcast Messages",
+    path: "/broadcast-messages",
   },
 ];
 
