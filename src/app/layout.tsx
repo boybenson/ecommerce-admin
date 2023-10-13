@@ -1,4 +1,4 @@
-import AdminUrlsLinks from "@/component/AdminUrls";
+import AdminUrlsLinks from "@/components/AdminUrls";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";

@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/component/Barchart/index.tsx"
+    "src/components/Barchart/index.tsx"
   ],
   "exclude": ["node_modules"]
 }

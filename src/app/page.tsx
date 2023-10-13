@@ -1,4 +1,4 @@
-import BarChart from "@/component/Barchart";
+import BarChart from "@/components/Barchart";
 import { dashboardData } from "@/data/admin-urls";
 import React from "react";
 
