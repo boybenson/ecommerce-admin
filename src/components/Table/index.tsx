@@ -1,41 +1,53 @@
 "use client";
-
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  ColumnDef,
+  FilterFn,
+} from "@tanstack/react-table";
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from "@tanstack/match-sorter-utils";
 import {
   ArrowDownTrayIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import { useEffect, useMemo, useState } from "react";
 
 const people = [
   {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
+    name: "Test Developer",
+    title: "Q/A",
     department: "Optimization",
     email: "lindsay.walton@example.com",
-    role: "Member",
+    role: "Q/A Engineer",
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
   },
   {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
+    name: "Net Ninja",
+    title: "Software Engineer",
     department: "Optimization",
     email: "lindsay.walton@example.com",
-    role: "Member",
+    role: "fullstack developer",
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
   },
   {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
+    name: "Larry Lance",
+    title: "Product Manager",
     department: "Optimization",
     email: "lindsay.walton@example.com",
-    role: "Member",
+    role: "project manager",
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
   },
   {
-    name: "Lindsay Walton",
-    title: "Front-end Developer",
+    name: "Elon Musk",
+    title: "CEO",
     department: "Optimization",
     email: "lindsay.walton@example.com",
     role: "Member",
@@ -43,8 +55,87 @@ const people = [
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
   },
 ];
+declare module "@tanstack/table-core" {
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>;
+  }
+  interface FilterMeta {
+    itemRank: RankingInfo;
+  }
+}
 
-const Table = () => {
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  const itemRank = rankItem(row.getValue(columnId), value);
+  addMeta({
+    itemRank,
+  });
+  return itemRank.passed;
+};
+
+const App = () => {
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const columns = useMemo<ColumnDef<any, any>[]>(
+    () => [
+      {
+        header: "Name",
+        accessorKey: "name",
+      },
+      {
+        header: () => "Title",
+        accessorKey: "title",
+      },
+      {
+        header: () => "Department",
+        accessorKey: "department",
+      },
+      {
+        header: () => "Role",
+        accessorKey: "role",
+      },
+      {
+        header: () => "Image",
+        accessorKey: "image",
+
+        cell: (info) => {
+          return (
+            <div className="h-11 w-11 flex-shrink-0">
+              <img
+                className="h-11 w-11 rounded-full"
+                src={info.row.original.image}
+                alt=""
+              />
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const [data, setData] = useState<any[]>([...people]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const safeValue: any = (() => {
+        const value = row.getValue(columnId);
+        return typeof value === "number" ? String(value) : value;
+      })();
+
+      return safeValue?.toLowerCase().includes(filterValue.toLowerCase());
+    },
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="flow-root">
@@ -58,67 +149,50 @@ const Table = () => {
                 </button>
                 <div className="border border-gray-400 flex items-center rounded-lg px-2 space-x-2">
                   <MagnifyingGlassIcon className="w-6 h-6" />
-                  <input
-                    type="search"
-                    className="h-full flex-1 outline-none"
-                    placeholder="search...."
+
+                  <DebouncedInput
+                    value={globalFilter ?? ""}
+                    onChange={(value) => setGlobalFilter(String(value))}
+                    className="p-2 font-lg shadow border border-block"
+                    placeholder="Search all columns..."
                   />
                 </div>
               </div>
             </div>
             <table className="min-w-full divide-y divide-gray-300">
               <thead>
-                <tr>
-                  <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">
-                    Name
-                  </th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Title
-                  </th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Status
-                  </th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                    Role
-                  </th>
-                </tr>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
-                {people.map((person, idx) => (
-                  <tr key={idx}>
-                    <td className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                      <div className="flex items-center">
-                        <div className="h-11 w-11 flex-shrink-0">
-                          <img
-                            className="h-11 w-11 rounded-full"
-                            src={person.image}
-                            alt=""
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="font-medium text-gray-900">
-                            {person.name}
-                          </div>
-                          <div className="mt-1 text-gray-500">
-                            {person.email}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                      <div className="text-gray-900">{person.title}</div>
-                      <div className="mt-1 text-gray-500">
-                        {person.department}
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                      <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        Active
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                      {person.role}
-                    </td>
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        className="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -130,4 +204,38 @@ const Table = () => {
   );
 };
 
-export default Table;
+export default App;
+
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  return (
+    <input
+      {...props}
+      value={value}
+      className="outline-none"
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
+}
