@@ -6,11 +6,7 @@ import {
   ColumnDef,
   FilterFn,
 } from "@tanstack/react-table";
-import {
-  RankingInfo,
-  rankItem,
-  compareItems,
-} from "@tanstack/match-sorter-utils";
+import { RankingInfo, rankItem } from "@tanstack/match-sorter-utils";
 import {
   ArrowDownTrayIcon,
   MagnifyingGlassIcon,
@@ -72,7 +68,12 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
   return itemRank.passed;
 };
 
-const App = () => {
+type Iprops = {
+  newBtnText?: string;
+  newBtnClickHandler?: any;
+};
+
+const Table = ({ newBtnText, newBtnClickHandler }: Iprops) => {
   const [globalFilter, setGlobalFilter] = useState("");
 
   const columns = useMemo<ColumnDef<any, any>[]>(
@@ -143,7 +144,15 @@ const App = () => {
           <div className="inline-block min-w-full py-2  sm:px-6 lg:px-8 border border-gray-100 shadow">
             <div className="p-3">
               <div className="w-full flex justify-end space-x-3">
-                <button className="border border-gray-400 hover:bg-gray-400 hover:text-white flex items-center space-x-1 p-2 rounded-lg">
+                {newBtnText && (
+                  <button
+                    onClick={newBtnClickHandler}
+                    className="border border-main_pink text-main_pink flex items-center space-x-1 p-2 rounded-lg"
+                  >
+                    <span>{newBtnText}</span>
+                  </button>
+                )}
+                <button className="border border-gray-400 bg-main_pink text-white flex items-center space-x-1 p-2 rounded-lg">
                   <ArrowDownTrayIcon className="w-4 h-6" />
                   <span>save as csv</span>
                 </button>
@@ -204,7 +213,7 @@ const App = () => {
   );
 };
 
-export default App;
+export default Table;
 
 function DebouncedInput({
   value: initialValue,
