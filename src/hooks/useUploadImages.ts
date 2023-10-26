@@ -6,6 +6,8 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { useState } from "react";
+import useCreateProduct from "./useCreateProduct";
+import { ProductCreateContent } from "@/generated/graphql";
 
 const storage = getStorage(fb);
 
@@ -14,26 +16,28 @@ const metadata = {
 };
 
 const useUploadImages = () => {
-  const [uploadStatus, setUploadStatus] = useState<string>("in_progress");
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const { handleCreateProduct, loading } = useCreateProduct();
   const [progress, setProgress] = useState(0);
 
-  const uploadImage = (file: File) => {
-    const storageRef = ref(storage, "images/" + file.name);
-    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+  const uploadImage = ({
+    file,
+    payload,
+  }: {
+    file: any;
+    payload: ProductCreateContent;
+  }) => {
+    const storageRef = ref(storage, "images/" + file[0].name);
+    const uploadTask = uploadBytesResumable(storageRef, file[0], metadata);
     uploadTask.on(
       "state_changed",
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
         setProgress(progress);
         switch (snapshot.state) {
           case "paused":
-            console.log("Upload is paused");
             break;
           case "running":
-            console.log("Upload is running");
             break;
         }
       },
@@ -47,27 +51,28 @@ const useUploadImages = () => {
             break;
         }
       },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
-          setImageUrls([...imageUrls, downloadURL]);
-        });
+      async () => {
+        const photo = await getDownloadURL(uploadTask.snapshot.ref);
+
+        handleCreateProduct({ photo, variables: payload });
       }
     );
   };
 
-  const handleUploadImages = async (files: File[]) => {
-    for (let i = 0; i < files.length; i++) {
-      uploadImage(files[i]);
-    }
-    setUploadStatus("done");
+  const handleUploadImages = async ({
+    file,
+    payload,
+  }: {
+    file: any;
+    payload: ProductCreateContent;
+  }) => {
+    await uploadImage({ file, payload });
   };
 
   return {
-    imageUrls,
     progress,
     handleUploadImages,
-    uploadStatus,
+    loading,
   };
 };
 

@@ -4,8 +4,11 @@ import Table from "@/components/Table";
 import React from "react";
 import Drawer from "@/components/Drawer";
 import NewProductForm from "./components/NewProductForm";
+import useFetchProducts from "@/hooks/useFetchProducts";
+import { tableColumns } from "./components/tableCols";
 
 const Products = () => {
+  const { products, loading } = useFetchProducts();
   const [newproduct, setNewProduct] = useQueryState("newproduct");
 
   const handleOpenNewProductDrawer = () => {
@@ -20,8 +23,11 @@ const Products = () => {
     <>
       <div className="mt-10">
         <Table
+          data={products}
           newBtnText="New Product"
           newBtnClickHandler={() => handleOpenNewProductDrawer()}
+          columns={tableColumns}
+          loading={loading}
         />
       </div>
 

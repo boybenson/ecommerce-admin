@@ -71,50 +71,19 @@ const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
 type Iprops = {
   newBtnText?: string;
   newBtnClickHandler?: any;
+  data: any;
+  columns: any;
+  loading: boolean;
 };
 
-const Table = ({ newBtnText, newBtnClickHandler }: Iprops) => {
+const Table = ({
+  newBtnText,
+  newBtnClickHandler,
+  data,
+  columns,
+  loading,
+}: Iprops) => {
   const [globalFilter, setGlobalFilter] = useState("");
-
-  const columns = useMemo<ColumnDef<any, any>[]>(
-    () => [
-      {
-        header: "Name",
-        accessorKey: "name",
-      },
-      {
-        header: () => "Title",
-        accessorKey: "title",
-      },
-      {
-        header: () => "Department",
-        accessorKey: "department",
-      },
-      {
-        header: () => "Role",
-        accessorKey: "role",
-      },
-      {
-        header: () => "Image",
-        accessorKey: "image",
-
-        cell: (info) => {
-          return (
-            <div className="h-11 w-11 flex-shrink-0">
-              <img
-                className="h-11 w-11 rounded-full"
-                src={info.row.original.image}
-                alt=""
-              />
-            </div>
-          );
-        },
-      },
-    ],
-    []
-  );
-
-  const [data, setData] = useState<any[]>([...people]);
 
   const table = useReactTable({
     data,
@@ -168,14 +137,14 @@ const Table = ({ newBtnText, newBtnClickHandler }: Iprops) => {
                 </div>
               </div>
             </div>
-            <table className="min-w-full divide-y divide-gray-300">
+            <table className="min-w-full divide-y divide-gray-300 text-left">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
+                        className="py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-0"
                       >
                         {header.isPlaceholder
                           ? null

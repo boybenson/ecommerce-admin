@@ -10,3 +10,16 @@ export const USER_SIGNUP = gql`
     }
   }
 `;
+
+export const CREATE_PRODUCT = gql`
+  mutation Mutation($content: ProductCreateContent) {
+    createProduct(content: $content) {
+      id
+      description
+      name
+      photo
+      price
+      qtyInStock
+    }
+  }
+`;
