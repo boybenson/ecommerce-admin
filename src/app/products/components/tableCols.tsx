@@ -21,13 +21,6 @@ export const tableColumns = [
 
       return (
         <div className="h-11 w-11 flex-shrink-0">
-          {/* <Image
-            src={row.original.photo}
-            alt=""
-            width={11}
-            height={11}
-            className="rounded-full"
-          /> */}
           <img
             className="h-11 w-11 rounded-full"
             src={row.original.photo}

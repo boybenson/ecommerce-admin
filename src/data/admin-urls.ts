@@ -22,6 +22,10 @@ export const AdminUrls = [
     label: "Broadcast Messages",
     path: "/broadcast-messages",
   },
+  {
+    label: "Customers",
+    path: "/customers",
+  },
 ];
 
 export const dashboardData = [
